@@ -118,6 +118,19 @@ interpret_Invalid = TestCase ( do
             (BinaryExpression 10 Add $ BinaryExpression 20 Multiply Malformed)) Nothing)
     )
 
+fullIntegration :: String -> Maybe Integer
+fullIntegration = interpretExpr . parseExpr . tokenize
+
+fullIntegration_Number = TestCase ( do 
+        (assertEqual "fullpass number" (fullIntegration "10") (Just 10))
+        (assertEqual "fullpass basic expr" (fullIntegration "10 + 5") (Just 15))
+        (assertEqual "fullpass basic negative expr" (fullIntegration "5 + -10") (Just $ -5))
+        (assertEqual "fullpass complex expr" (fullIntegration "10 + 5 - 3") (Just 12))
+        (assertEqual "fullpass simple invalid" (fullIntegration "test") Nothing)
+        (assertEqual "fullpass basic expr invalid" (fullIntegration "1 + test") Nothing)
+        (assertEqual "fullpass complex expr invalid" (fullIntegration "1 + 2 * test") Nothing)
+    )
+
 suite = Interop.TestSuite {
     Interop.name = "Main.hs tests",
     Interop.tests = [
