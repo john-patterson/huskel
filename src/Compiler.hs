@@ -1,10 +1,19 @@
-module Compiler where
+module Compiler (performOperation
+    , Operator(..)
+    , Token(..)
+    , Expression(..)
+    , classify
+    , tokenize
+    , parseExpr
+    , interpretExpr
+    , main) where
 import JStrings
 
 data Operator = Add | Subtract | Multiply deriving (Eq, Show)
 data Expression a =
     ConstantExpression a
     | BinaryExpression a Operator (Expression a)
+    | Malformed
     deriving (Eq, Show)
 
 data Token a =
@@ -32,11 +41,15 @@ tokenize input = (map classify (words input))
 parseExpr :: [Token Integer] -> Expression Integer
 parseExpr [(Constant a)] = ConstantExpression a
 parseExpr ((Constant a):(Function op):rest) = BinaryExpression a op (parseExpr rest)
-parseExpr _ = error "Malformed expression."
+parseExpr _ = Malformed
 
-interpretExpr :: Expression Integer -> Integer 
-interpretExpr (ConstantExpression a) = a
-interpretExpr (BinaryExpression a op expr) = performOperation op a (interpretExpr expr)
+interpretExpr :: Expression Integer -> Maybe Integer 
+interpretExpr (ConstantExpression a) = Just a
+interpretExpr (BinaryExpression a op expr) = (case interpretExpr expr of
+        Just result -> Just $ performOperation op a result
+        Nothing -> Nothing
+    )
+interpretExpr Malformed = Nothing
 
 main :: IO ()
 main = do
