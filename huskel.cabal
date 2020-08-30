@@ -30,6 +30,7 @@ Test-Suite test-huskel
     John.TestInterop
     , MainSuite
     , Tests.Main
+    , Tests.JStrings
   build-depends:
     base ^>=4.14.0.0
     , HUnit ^>=1.6.0.0
